@@ -39,7 +39,7 @@
 
 Name:		%pkg_name
 Version:	%{clang_version}%{?rc_ver:~rc%{rc_ver}}
-Release:	7%{?dist}
+Release:	8%{?dist}
 Summary:	A C language family front-end for LLVM
 
 License:	NCSA
@@ -180,11 +180,11 @@ Runtime library for clang.
 
 %package devel
 Summary: Development header files for clang
+Requires: %{name}-libs = %{version}-%{release}
 %if %{without compat_build}
 Requires: %{name}%{?_isa} = %{version}-%{release}
 # The clang CMake files reference tools from clang-tools-extra.
 Requires: %{name}-tools-extra%{?_isa} = %{version}-%{release}
-Requires: %{name}-libs = %{version}-%{release}
 %endif
 
 %description devel
@@ -595,6 +595,9 @@ false
 
 %endif
 %changelog
+* Thu Sep 08 2022 Nikita Popov <npopov@redhat.com> - 14.0.5-8
+- Add dep from clang15-devel to clang15-libs
+
 * Mon Aug 29 2022 sguelton@redhat.com - 14.0.5-7
 - Add a Recommends on libatomic, see rhbz#2118592
 
