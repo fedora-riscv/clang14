@@ -39,7 +39,7 @@
 
 Name:		%pkg_name
 Version:	%{clang_version}%{?rc_ver:~rc%{rc_ver}}
-Release:	9%{?dist}
+Release:	9.rv64%{?dist}
 Summary:	A C language family front-end for LLVM
 
 License:	NCSA
@@ -285,7 +285,7 @@ rm test/CodeGen/profile-filter.c
 
 %build
 # We run the builders out of memory on armv7 and i686 when LTO is enabled
-%ifarch %{arm} i686
+%ifarch %{arm} i686 riscv64
 %define _lto_cflags %{nil}
 %else
 # This package does not ship any object files or static libraries, so we
@@ -302,7 +302,7 @@ sed -i 's/\@FEDORA_LLVM_LIB_SUFFIX\@/64/g' test/lit.cfg.py
 sed -i 's/\@FEDORA_LLVM_LIB_SUFFIX\@//g' test/lit.cfg.py
 %endif
 
-%ifarch s390 s390x %{arm} %ix86 ppc64le
+%ifarch s390 s390x %{arm} %ix86 ppc64le riscv64
 # Decrease debuginfo verbosity to reduce memory consumption during final library linking
 %global optflags %(echo %{optflags} | sed 's/-g /-g1 /')
 %endif
@@ -320,7 +320,7 @@ CFLAGS="$CFLAGS -Wno-address -Wno-nonnull -Wno-maybe-uninitialized"
 	-DCMAKE_BUILD_TYPE=RelWithDebInfo \
 	-DPYTHON_EXECUTABLE=%{__python3} \
 	-DCMAKE_SKIP_RPATH:BOOL=ON \
-%ifarch s390 s390x %{arm} %ix86 ppc64le
+%ifarch s390 s390x %{arm} %ix86 ppc64le riscv64
 	-DCMAKE_C_FLAGS_RELWITHDEBINFO="%{optflags} -DNDEBUG" \
 	-DCMAKE_CXX_FLAGS_RELWITHDEBINFO="%{optflags} -DNDEBUG" \
 %endif
@@ -469,7 +469,7 @@ ln -s %{_datadir}/clang/clang-format-diff.py %{buildroot}%{_bindir}/clang-format
 # requires lit.py from LLVM utilities
 # FIXME: Fix failing ARM tests
 LD_LIBRARY_PATH=%{buildroot}/%{_libdir} %{__ninja} check-all -C %{__cmake_builddir} || \
-%ifarch %{arm}
+%ifarch %{arm} riscv64
 :
 %else
 false
@@ -595,8 +595,14 @@ false
 
 %endif
 %changelog
+* Sat May 06 2023 Liu Yang <Yang.Liu.sn@gmail.com> - 14.0.5-9.rv64
+- cherry-pick patch for Fedora 38 riscv64 rebuild.
+
 * Wed Jan 18 2023 Fedora Release Engineering <releng@fedoraproject.org> - 14.0.5-9
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_38_Mass_Rebuild
+
+* Thu Jan 05 2023 Liu Yang <Yang.Liu.sn@gmail.com> - 14.0.5-8.rv64
+- Fix build on riscv64.
 
 * Thu Sep 08 2022 Nikita Popov <npopov@redhat.com> - 14.0.5-8
 - Add dep from clang15-devel to clang15-libs
